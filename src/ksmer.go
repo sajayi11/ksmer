@@ -4,7 +4,8 @@ import (
 	"fmt"
 //	"math"
 	"io/ioutil"
-
+	"os"
+	"encoding/gob"
 )
 
 var gkcMap map[uint32]map[uint16]int;
@@ -83,6 +84,34 @@ func storeContigMappingsSpaced(genomeId uint16, contigStr []byte, k1 uint32, s u
 	}
 }
 
+
+func saveIndexMapToFile(filePath string, m map[uint32]map[uint16]int) {
+	fp, err := os.Create(filePath);
+	if err != nil {
+		panic("cant open file");
+	}
+	defer fp.Close();
+	
+	enc := gob.NewEncoder(fp);
+	if err := enc.Encode(m); err != nil {
+		panic("cant encode");
+	}
+}
+
+func loadIndexMapToFile(filePath string) (m map[uint32]map[uint16]int) {
+	fp, err := os.Open(filePath);
+	if err != nil {
+		panic("cant open file");
+	}
+	defer fp.Close();
+	
+	enc := gob.NewDecoder(fp);
+	if err := enc.Decode(&m); err != nil {
+		panic("cant decode");
+	}
+	return m;
+}
+
 func main() {
 	
 	gkcMap = make(map[uint32]map[uint16]int);
@@ -93,6 +122,7 @@ func main() {
 	for i:=0; i<(len(contigStr)); i++ {
 		//fmt.Printf("%d ", getBaseId(contigStr[i]));
 	}
+	
 	
 	genomeId := uint16(0);
 	k := uint32(4);
@@ -105,6 +135,9 @@ func main() {
 	k2 := uint32(4);
 	storeContigMappingsSpaced(genomeId, contigStr, k1, s, k2);
 	*/
+	
+	saveIndexMapToFile("input\\index.map", gkcMap);
+	//gkcMap = loadIndexMapToFile("input\\index.map");
 	
 	for kmerId, gMap := range gkcMap {
 		fmt.Print("kmerId:", kmerId);
