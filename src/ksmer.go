@@ -7,6 +7,7 @@ import (
 
 )
 
+var gkcMap map[uint32]map[uint16]int;
 
 func check(e error) {
     if e != nil {
@@ -31,7 +32,12 @@ func getBaseId(b byte) uint32 {
 }
 
 func store(genomeId uint16, kmerId uint32) {
-	
+	gMap, ok := gkcMap[kmerId];
+	if !ok {
+		gMap = make(map[uint16]int);
+		gkcMap[kmerId] = gMap;
+	}
+	gMap[genomeId]++;
 }
 
 func storeContigMappings(genomeId uint16, contigStr []byte, k uint32) {
@@ -79,6 +85,8 @@ func storeContigMappingsSpaced(genomeId uint16, contigStr []byte, k1 uint32, s u
 
 func main() {
 	
+	gkcMap = make(map[uint32]map[uint16]int);
+	
 	contigStr, err := ioutil.ReadFile("input\\sample.contig");
 	check(err);
 	
@@ -86,20 +94,26 @@ func main() {
 		//fmt.Printf("%d ", getBaseId(contigStr[i]));
 	}
 	
-	//genomeId := uint16(0);
-	//k := uint32(4);
-	//storeContigMappings(genomeId, contigStr, k);
+	genomeId := uint16(0);
+	k := uint32(4);
+	storeContigMappings(genomeId, contigStr, k);
 	
-	
+	/*
 	genomeId := uint16(0);
 	k1 := uint32(4);
 	s := uint32(3);
 	k2 := uint32(4);
 	storeContigMappingsSpaced(genomeId, contigStr, k1, s, k2);
+	*/
 	
+	for kmerId, gMap := range gkcMap {
+		fmt.Print("kmerId:", kmerId);
+		for genomeId, count := range gMap {
+			fmt.Println(" genomeId:", genomeId, " count:", count);
+			//fmt.Println("count:", gkcMap[kmerId][genomeId]);
+		}
+	}
 	
-	
-	//fmt.Println(str);
 
 }
 
